@@ -2,44 +2,9 @@
 #include "../params.h"
 #include <Updater.h>
 #include <WiFiClientSecure.h>
+#include "uploadPage.h"
 
 ESP8266WebServer WebUpdater::webServer(WEBPORT);
-
-String WEB_UPLOAD = "<script src='https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js'></script>"
-"<form method='POST' action='#' enctype='multipart/form-data' id='upload_form'>"
-    "<input type='file' name='update'>"
-    "<input type='submit' value='Update'>"
-"</form>"
-"<div id='prg'>progress: 0%</div>"
-"<script>"
-"$('form').submit(function(e){"
-    "e.preventDefault();"
-      "var form = $('#upload_form')[0];"
-      "var data = new FormData(form);"
-      " $.ajax({"
-            "url: '/update',"
-            "type: 'POST',"               
-            "data: data,"
-            "contentType: false,"                  
-            "processData:false,"  
-            "xhr: function() {"
-                "var xhr = new window.XMLHttpRequest();"
-                "xhr.upload.addEventListener('progress', function(evt) {"
-                    "if (evt.lengthComputable) {"
-                        "var per = evt.loaded / evt.total;"
-                        "$('#prg').html('progress: ' + Math.round(per*100) + '%');"
-                    "}"
-               "}, false);"
-               "return xhr;"
-            "},"                                
-            "success:function(d, s) {"    
-                "console.log('success!')"
-           "},"
-            "error: function (a, b, c) {"
-            "}"
-          "});"
-"});"
-"</script>";
 
 /**
  * Intialize webserver
@@ -79,8 +44,19 @@ void WebUpdater::redirectHome()
  */
 void WebUpdater::showUploader()
 {
+    String hostname(HOSTNAME);
+    hostname += String(ESP.getChipId(), HEX);
+
+    String targetOta = "";
+    targetOta += "HostName: " + hostname + "<br>";
+    targetOta += "IP: " + WiFi.localIP().toString() + "<br>";
+    targetOta += "Port: " + String(ARDUINO_OTA_PORT) + "<br>";
+
+    String webPage = WEB_UPLOAD_PAGE;
+    webPage.replace("%target%", targetOta);
+
     webServer.sendHeader("Connection", "close");
-    webServer.send(200, "text/html", WEB_UPLOAD);
+    webServer.send(200, "text/html", webPage);
 }
 
 /**
