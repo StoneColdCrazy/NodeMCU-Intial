@@ -1,6 +1,7 @@
 #include "wifiFunctions.h"
 #include "../params.h"
 #include <ESP8266mDNS.h>
+#include <WiFiUdp.h>
 
 
 /**
