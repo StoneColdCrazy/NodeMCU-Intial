@@ -62,6 +62,7 @@ void WifiFunctions::initArduinoOta()
  */
 void WifiFunctions::handleLoop()
 {
+	MDNS.update();
     ArduinoOTA.handle();
 }
 
